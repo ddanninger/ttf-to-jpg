@@ -5,6 +5,7 @@ from PIL import Image
 from PIL import ImageDraw
 from PIL import ImageFont
 
+FONT_EXTENTION = ['.ttf', '.otf', '.ttc']
 
 def parse_args():
     desc = "ttf/otf fonts to jpg images set (JUST KOREAN)"
@@ -44,6 +45,11 @@ def main():
 
     for _, _, ttfs in os.walk(ttf_dir):
         for ttf in ttfs:
+            # check extention type of file and continue if it is not font file
+            ext = os.path.splitext(ttf)[-1]
+            if ext not in FONT_EXTENTION:
+                continue
+            
             font = ImageFont.truetype(ttf_dir + '/' + ttf, size=char_size)
             count = 0
             for c in charset:

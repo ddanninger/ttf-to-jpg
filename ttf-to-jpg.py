@@ -18,6 +18,10 @@ def parse_args():
                         help='size of result jpg', required=False)
     parser.add_argument('--offset', type=int, default=20,
                         help='offset', required=False)
+    parser.add_argument('--makeset', type=str, default='kr',
+                        help= 'specify character set you want to make to image spliting with \',\' [kr,special,demo_v2]',
+                        required=False)
+
     return parser.parse_args()
 
 
@@ -35,7 +39,16 @@ def main():
     args = parse_args()
     ttf_dir = args.ttf_dir
     jpg_dir = args.jpg_dir
-    charset = json.load(open('./charset.json'))['kr']
+
+    makeset = args.makeset
+    makeset = makeset.split(',')
+    char_json = json.load(open('./charset.json'))    
+    charset = []
+    for character in makeset:
+        if character not in char_json:
+            print("[error] there is no key [%s] in ./charset.json" % character)
+            return
+        charset.extend(char_json[character])
 
     char_size = args.size - (args.offset * 2)
 
@@ -49,7 +62,7 @@ def main():
             ext = os.path.splitext(ttf)[-1]
             if ext not in FONT_EXTENTION:
                 continue
-            
+
             font = ImageFont.truetype(ttf_dir + '/' + ttf, size=char_size)
             count = 0
             for c in charset:
@@ -60,8 +73,11 @@ def main():
                     os.makedirs(jpg_dir + '/' + c)
                 img = draw_char(font, c, args.size, args.offset)
                 if img:
+                    # img.save(os.path.join(jpg_dir + '/' + c,
+                    # "%s_%s.jpg" % (c, ttf.split('.')[0])))
                     img.save(os.path.join(jpg_dir + '/' + c,
-                                          "%s_%s.jpg" % (c, ttf.split('.')[0])))
+                                        "%s.jpg" % (ttf.split('.')[0])))
+
                 count += 1
 
             print("!! COMPLETE:: %s" % (ttf))
